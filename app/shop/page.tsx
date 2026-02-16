@@ -70,9 +70,10 @@ async function getProducts(params: SearchParams) {
 export default async function ShopPage({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
-  const products = await getProducts(searchParams);
+  const params = await searchParams;
+  const products = await getProducts(params);
 
   return (
     <div className="bg-beige/30 dark:bg-gray-900 min-h-screen">
