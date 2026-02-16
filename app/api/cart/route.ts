@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// In-memory cart storage (MVP fallback)
-// TODO: Replace with database or localStorage persistence
+/**
+ * In-memory cart storage (MVP fallback)
+ * 
+ * WARNING: This is a development-only placeholder. In production, this should be replaced with:
+ * - Database persistence (recommended for multi-server deployments)
+ * - Session storage with cookies/JWT
+ * - Client-side localStorage with server sync
+ * 
+ * Current limitation: Cart state is NOT persistent between server restarts
+ * and will NOT work correctly in serverless environments where instances are ephemeral.
+ * 
+ * TODO: Implement proper cart persistence strategy before production deployment
+ */
 let cartStorage: any[] = [];
 
 export async function GET() {

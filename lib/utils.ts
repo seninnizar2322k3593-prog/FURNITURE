@@ -14,10 +14,14 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
+/**
+ * Custom dimensions for furniture
+ * All measurements are in inches
+ */
 export interface CustomDimensions {
-  width: number;
-  height: number;
-  depth: number;
+  width: number;  // Width in inches
+  height: number; // Height in inches
+  depth: number;  // Depth in inches
 }
 
 export interface PriceCalculationParams {
@@ -26,6 +30,17 @@ export interface PriceCalculationParams {
   dimensions?: CustomDimensions;
 }
 
+/**
+ * Calculate price for custom furniture
+ * 
+ * Formula: finalPrice = basePrice × woodMultiplier + sizeAdjustment
+ * 
+ * Size adjustment is based on volume compared to base volume (3ft × 2ft × 1.5ft = 9 cubic feet)
+ * Additional 20% of base price per volume factor
+ * 
+ * @param params - Pricing parameters including dimensions in inches
+ * @returns Final calculated price in rupees
+ */
 export function calculateCustomPrice(params: PriceCalculationParams): number {
   const { basePrice, woodMultiplier, dimensions } = params;
   

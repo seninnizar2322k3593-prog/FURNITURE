@@ -4,13 +4,10 @@ import Link from 'next/link';
 import { ShoppingCart, Moon, Sun, Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useState, useEffect } from 'react';
+import { useCart } from '@/lib/cart-context';
 
-interface NavbarProps {
-  onCartClick: () => void;
-  cartItemCount: number;
-}
-
-export default function Navbar({ onCartClick, cartItemCount }: NavbarProps) {
+export default function Navbar() {
+  const { items, setIsCartOpen } = useCart();
   const [isDark, setIsDark] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -62,14 +59,14 @@ export default function Navbar({ onCartClick, cartItemCount }: NavbarProps) {
             </button>
 
             <button
-              onClick={onCartClick}
+              onClick={() => setIsCartOpen(true)}
               className="relative p-2 rounded-md hover:bg-beige transition-colors"
               aria-label="Open cart"
             >
               <ShoppingCart className="h-5 w-5 text-wood" />
-              {cartItemCount > 0 && (
+              {items.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-orchid text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartItemCount}
+                  {items.length}
                 </span>
               )}
             </button>
