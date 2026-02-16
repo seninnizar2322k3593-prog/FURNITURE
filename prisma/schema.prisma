@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  COMPLETED
+  CANCELLED
+}
+
+enum Category {
+  Chair
+  Table
+  Bed
+  Cabinet
+  Sofa
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String?  // Optional placeholder for authentication
+  role      Role     @default(USER)
+  orders    Order[]
+  reviews   Review[]
+  wishlist  Wishlist?
+  compareItems CompareItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @db.Text
+  basePrice   Float
+  category    Category
+  images      String[] // Array of image URLs
+  stock       Int      @default(0)
+  woodTypes   WoodType[]
+  colors      Color[]
+  reviews     Review[]
+  orderItems  OrderItem[]
+  wishlistItems WishlistItem[]
+  compareItems CompareItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WoodType {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  priceMultiplier Float     // e.g., 1.0 for base, 1.5 for premium
+  products        Product[]
+}
+
+model Color {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  hexCode  String    // e.g., "#8B4513"
+  products Product[]
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int      // 1-5
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  totalAmount Float
+  status      OrderStatus @default(PENDING)
+  items       OrderItem[]
+  paymentId   String?     // Stripe/Razorpay payment ID
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name        String   // Store name for custom items
+  quantity    Int
+  unitPrice   Float
+  woodType    String?  // Optional for custom items
+  color       String?  // Optional for custom items
+  customDims  Json?    // { width, height, depth } for custom furniture
+}
+
+model Wishlist {
+  id     String         @id @default(cuid())
+  userId String         @unique
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  WishlistItem[]
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  wishlistId String
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model CompareItem {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  description String?
+  discountPct Float     // Percentage discount (e.g., 10 for 10%)
+  active      Boolean   @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
